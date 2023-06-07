@@ -4,7 +4,7 @@ function uploadFileToFTP(local_path, remote_path)
     ftp_options = RequestOptions(hostname="ftp.box.com",
         username=ENV["FTP_USERNAME"]
         password = ENV["FTP_PASSWORD"]
-        port = 21,
+        port = 21.0to_i,
         ssl=false)
 
     ftp = FTP(ftp_options)  # Create a new FTP object
