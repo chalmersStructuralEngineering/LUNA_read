@@ -8,7 +8,6 @@ using Statistics
 
 function get_data(ts, j_map)  # ts: Number of calls per measurement to get the mean value
 
-    # data = [Dict("data" => []) for _ in 1:8]
     data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 
     fail = 0  # variable to check the status of the connection to Luna
