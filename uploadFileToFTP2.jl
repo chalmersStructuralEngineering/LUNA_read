@@ -3,9 +3,10 @@ using PyCall
 # Import Python's built-in ftplib
 ftplib = pyimport("ftplib")
 
-function uploadFileToFTP2(filepath, remote_path)
+function uploadFileToFTP2(filepath, remote_path, username, password, hostname)
     username = ENV["FTP_USERNAME"]
     password = ENV["FTP_PASSWORD"]
+    hostname = ENV["FTP_HOSTNAME"]
     ftp = ftplib.FTP("ftp.box.com", username, password)
 
     try
