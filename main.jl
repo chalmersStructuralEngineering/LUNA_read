@@ -75,7 +75,10 @@ while cond # while true
 
     @save data_dir * filename raw_data curr_time
 
-    uploadFileToFTP2(data_dir * filename, ftp_dir * filename)
+    username = ENV["FTP_USERNAME"]
+    password = ENV["FTP_PASSWORD"]
+    hostname = ENV["FTP_HOSTNAME"]
+    uploadFileToFTP2(data_dir * filename, ftp_dir * filename, username, password, hostname)
 
     println("Reading iteration finished: ", Dates.now())
 
