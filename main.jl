@@ -17,6 +17,7 @@ mutable struct MyStruct
     ch7::Matrix{Float64}
     ch8::Matrix{Float64}
 end
+
 data_dir_David = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PostDOFS/PRC/"
 
