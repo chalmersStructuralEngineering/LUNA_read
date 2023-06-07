@@ -51,7 +51,7 @@ end
 println(n)
 
 
-# Starting loop for reading and storing data every XXX seconds (int)
+# Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
     global raw_data, curr_time, j, n
