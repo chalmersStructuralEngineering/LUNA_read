@@ -4,10 +4,8 @@ using PyCall
 ftplib = pyimport("ftplib")
 
 function uploadFileToFTP2(filepath, remote_path, username, password, hostname)
-    username = ENV["FTP_USERNAME"]
-    password = ENV["FTP_PASSWORD"]
-    hostname = ENV["FTP_HOSTNAME"]
-    ftp = ftplib.FTP("ftp.box.com", username, password)
+
+    ftp = ftplib.FTP(hostname, username, password)
 
     try
         # Open the file in binary mode and upload
