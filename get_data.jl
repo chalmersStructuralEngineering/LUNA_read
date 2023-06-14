@@ -2,13 +2,13 @@ using Dates
 using Sockets
 using JSON3
 using Statistics
+using FillOutliers
 # using PyCall
 
 # @pyimport scipy.stats.mstats as mstats
 
 function get_data(ts, j_map)  # ts: Number of calls per measurement to get the mean value
 
-    # data = [Dict("data" => []) for _ in 1:8]
     data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 
     fail = 0  # variable to check the status of the connection to Luna
@@ -73,7 +73,7 @@ end
 
 function filter_extreme_values(data_in)
     # Here we use Python's scipy library for winsorization as a rough approximation for MATLAB's filloutliers function
-    # data_in = mstats.winsorize(data_in, limits=(0.05, 0.05))
+    data_in = filloutliers(data_in, "move_mean", 11)
     data_out = mean(data_in, dims=1)  # Similar to 'mean' function in MATLAB
     return data_out
 end
