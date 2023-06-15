@@ -76,33 +76,46 @@ while cond # while true
     curr_time = vcat(curr_time, timeF)
 
     if n < 10
-        filename_David = "DTs2_numfile_00" * string(n) * ".jld2"
-        filename_PRC = "PRC_numfile_00" * string(n) * ".jld2"
+        filename_David = "DTs2_numfile_00" * string(n)
+        filename_PRC = "PRC_numfile_00" * string(n)
     elseif n < 100
-        filename_David = "DTs2_numfile_0" * string(n) * ".jld2"
-        filename_PRC = "PRC_numfile_0" * string(n) * ".jld2"
+        filename_David = "DTs2_numfile_0" * string(n)
+        filename_PRC = "PRC_numfile_0" * string(n)
     else
-        filename_David = "DTs2_numfile_" * string(n) * ".jld2"
-        filename_PRC = "PRC_numfile_" * string(n) * ".jld2"
+        filename_David = "DTs2_numfile_" * string(n)
+        filename_PRC = "PRC_numfile_" * string(n)
     end
 
     j += 1
 
-    # Save data in Julia format (could be used to save in .mat format)
-    @save data_dir_David * filename_David raw_data_PRC curr_time
-    @save data_dir_PRC * filename_PRC raw_data_PRC curr_time
+    # Save data in Julia format
+    @save data_dir_David * filename_David * ".jld2" raw_data_David curr_time
+    @save data_dir_PRC * filename_PRC * ".jld2" raw_data_PRC curr_time
+
+    # Save data in MATLAB format
+    matwrite(filename_David * ".mat", Dict(
+            "raw_data_David" => 0,
+            "curr_time" => 1
+        ); compress=false)
+    matwrite(filename_PRC * ".mat", Dict(
+            "raw_data_PRC" => 0,
+            "curr_time" => 1
+        ); compress=false)
 
     # Upload to FTP (Box) server
     username = ENV["FTP_USERNAME"]
     password = ENV["FTP_PASSWORD"]
     hostname = ENV["FTP_HOSTNAME"]
-    uploadFileToFTP2(data_dir_David * filename, ftp_dir_David * filename_David, username, password, hostname)
-    uploadFileToFTP2(data_dir_PRC * filename_PRC, ftp_dir_PRC * filename_PRC, username, password, hostname)
+
+    uploadFileToFTP2(data_dir_David * filename_David * ".jld2", ftp_dir_David * filename_David, username, password, hostname)
+    uploadFileToFTP2(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC, username, password, hostname)
+    uploadFileToFTP2(data_dir_David * filename_David * ".mat", ftp_dir_David * filename_David, username, password, hostname)
+    uploadFileToFTP2(data_dir_PRC * filename_PRC * ".mat", ftp_dir_PRC * filename_PRC, username, password, hostname)
 
     println("Reading iteration finished: ", Dates.now())
 
     # 50 MB, splitting of files if they are too big
-    if filesize(data_dir_PRC * filename_PRC) > 50000000
+    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000
         raw_data_David = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
         raw_data_PRC = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
         curr_time = []
