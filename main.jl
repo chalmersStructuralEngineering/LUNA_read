@@ -94,12 +94,12 @@ while cond # while true
 
     # Save data in MATLAB format
     matwrite(filename_David * ".mat", Dict(
-            "raw_data_David" => 0,
-            "curr_time" => 1
+            "raw_data_David" => raw_data_David,
+            "curr_time" => curr_time
         ); compress=false)
     matwrite(filename_PRC * ".mat", Dict(
-            "raw_data_PRC" => 0,
-            "curr_time" => 1
+            "raw_data_PRC" => raw_data_PRC,
+            "curr_time" => curr_time
         ); compress=false)
 
     # Upload to FTP (Box) server
