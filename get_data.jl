@@ -3,9 +3,6 @@ using Sockets
 using JSON3
 using Statistics
 using FillOutliers
-# using PyCall
-
-# @pyimport scipy.stats.mstats as mstats
 
 function get_data(ts, j_map)  # ts: Number of calls per measurement to get the mean value
 
@@ -68,12 +65,14 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
 
     curr_time = Dates.now()
     return data, curr_time
+
 end
 
 
 function filter_extreme_values(data_in)
-    # Here we use Python's scipy library for winsorization as a rough approximation for MATLAB's filloutliers function
+    
     data_in = filloutliers(data_in, "move_mean", 11)
     data_out = mean(data_in, dims=1)  # Similar to 'mean' function in MATLAB
     return data_out
+
 end
