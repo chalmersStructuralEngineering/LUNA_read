@@ -5,8 +5,8 @@ using TickTock
 using Revise
 # get_data2.jl to run locally wothout any socket connection
 include("get_data_2.jl")
-include("uploadFileToFTP2.jl")
-
+include("uploadFileToFTP.jl")
+include("saveToMat.jl")
 mutable struct MyStruct
     ch1::Matrix{Float64}
     ch2::Matrix{Float64}
@@ -24,6 +24,7 @@ data_dir_PRC = "./test_data/PostDOFS/PRC/"
 ftp_dir_David = "/Natxo/"#"/Davids_test/Series_2/"
 ftp_dir_PRC = "/Natxo/"
 
+raw_data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 raw_data_David = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 raw_data_PRC = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 
@@ -46,7 +47,7 @@ else
     for file in listing
         try
             num_file = parse(Int, file[end-7:end-5])
-            n = max(n, num_file + 1)
+            global n = max(n, num_file + 1)
         catch e
             println("DEBUG: could not parse file ", file)
         end
@@ -60,7 +61,7 @@ println(n)
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
-    global raw_data, curr_time, j, n
+    global raw_data, raw_data_David, raw_data_PRC, curr_time, j, n
     println("########################################")
     println("Iteration num.: ", j)
 
@@ -99,24 +100,18 @@ while cond # while true
     @save data_dir_PRC * filename_PRC * ".jld2" raw_data_PRC curr_time
 
     # Save data in MATLAB format
-    matwrite(filename_David * ".mat", Dict(
-            "raw_data_David" => raw_data_David,
-            "curr_time" => curr_time
-        ); compress=false)
-    matwrite(filename_PRC * ".mat", Dict(
-            "raw_data_PRC" => raw_data_PRC,
-            "curr_time" => curr_time
-        ); compress=false)
+    saveToMAT(raw_data_David, data_dir_David * filename_David * ".mat")
+    saveToMAT(raw_data_PRC, data_dir_PRC * filename_PRC * ".mat")
 
     # Upload to FTP (Box) server
     username = ENV["FTP_USERNAME"]
     password = ENV["FTP_PASSWORD"]
     hostname = ENV["FTP_HOSTNAME"]
 
-    uploadFileToFTP2(data_dir_David * filename_David * ".jld2", ftp_dir_David * filename_David, username, password, hostname)
-    uploadFileToFTP2(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC, username, password, hostname)
-    uploadFileToFTP2(data_dir_David * filename_David * ".mat", ftp_dir_David * filename_David, username, password, hostname)
-    uploadFileToFTP2(data_dir_PRC * filename_PRC * ".mat", ftp_dir_PRC * filename_PRC, username, password, hostname)
+    uploadFileToFTP2(data_dir_David * filename_David * ".jld2", ftp_dir_David * filename_David * ".jld2", username, password, hostname)
+    uploadFileToFTP2(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname)
+    uploadFileToFTP2(data_dir_David * filename_David * ".mat", ftp_dir_David * filename_David * ".mat", username, password, hostname)
+    uploadFileToFTP2(data_dir_PRC * filename_PRC * ".mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname)
 
     println("Reading iteration finished: ", Dates.now())
 
