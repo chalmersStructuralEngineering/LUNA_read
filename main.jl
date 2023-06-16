@@ -3,8 +3,8 @@ using MAT
 using JLD2
 using TickTock
 using Revise
-
-include("get_data.jl")
+# get_data2.jl to run locally wothout any socket connection
+include("get_data_2.jl")
 include("uploadFileToFTP2.jl")
 
 mutable struct MyStruct
@@ -21,11 +21,11 @@ end
 data_dir_David = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PostDOFS/PRC/"
 
-ftp_dir_David = "/Davids_test/Series_2/"
+ftp_dir_David = "/Natxo/"#"/Davids_test/Series_2/"
 ftp_dir_PRC = "/Natxo/"
 
-raw_data_David = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
-raw_data_PRC = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
+raw_data_David = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+raw_data_PRC = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
@@ -35,16 +35,22 @@ j = 1
 
 curr_time = []
 
-listing = readdir(data_dir)
-n = 0
+listing = readdir(data_dir_PRC)
 
-for file in listing
-    num_file = 0
-    try
-        num_file = parse(Int, file[end-7:end-5])
-    catch e
+# check if the directory is empty
+if isempty(listing)
+    println("Directory is empty")
+    n = 1
+else
+    n = 0
+    for file in listing
+        try
+            num_file = parse(Int, file[end-7:end-5])
+            n = max(n, num_file + 1)
+        catch e
+            println("DEBUG: could not parse file ", file)
+        end
     end
-    global n = max(n, num_file + 1)
 end
 
 # Now you can access the value of n
