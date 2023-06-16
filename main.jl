@@ -26,7 +26,7 @@ raw_data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point
-int = 600  # Time interval between readings
+int = 3  # Time interval between readings
 j = 1
 
 curr_time = []
@@ -99,7 +99,7 @@ while cond # while true
     println("Reading iteration finished: ", Dates.now())
 
     # 50 MB, splitting of files if they are too big
-    if filesize(data_dir * filename * ".jld2") > 50000000
+    if filesize(data_dir * filename * ".jld2") > 500000 #00
         raw_data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         curr_time = []
         j = 1
