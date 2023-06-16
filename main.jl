@@ -26,7 +26,7 @@ raw_data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 600  # Time interval between readings in seconds
+int = 5  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -86,7 +86,7 @@ while cond # while true
     @save data_dir * filename * ".jld2" raw_data curr_time
 
     # Save data in MATLAB format
-    saveToMAT(raw_data, data_dir * filename * ".mat")
+    saveToMAT(raw_data, data_dir * filename * "_.mat")
 
     # Upload to FTP (Box) server
     username = ENV["FTP_USERNAME"]
