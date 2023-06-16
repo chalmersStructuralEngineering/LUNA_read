@@ -56,6 +56,7 @@ println(n)
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
+    
     global raw_data, curr_time, j, n
     println("########################################")
     println("Iteration num.: ", j)
@@ -115,4 +116,5 @@ while cond # while true
     if time_left > 0
         sleep(time_left)
     end
+
 end

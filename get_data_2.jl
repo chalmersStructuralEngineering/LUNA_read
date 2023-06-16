@@ -18,7 +18,7 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
 
         if dec_data["message type"] == "measurement" && !isempty(dec_data["data"])
             for i = 1:8
-                println(counter += 1)
+                # println(counter += 1)
                 old_values = getfield(data, j_map[i])
                 new_values = isempty(old_values) ? new_data : vcat(old_values, new_data)
                 setfield!(data, j_map[i], new_values)
