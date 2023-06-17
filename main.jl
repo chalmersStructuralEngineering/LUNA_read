@@ -95,7 +95,7 @@ while cond # while true
     hostname = ENV["FTP_HOSTNAME_box"]
 
     uploadFileToFTP(data_dir * filename * ".jld2", ftp_dir * filename * ".jld2", username, password, hostname)
-    uploadFileToFTP(data_dir * filename * ".mat", ftp_dir * filename * ".mat", username, password, hostname)
+    uploadFileToFTP(data_dir * filename * "_.mat", ftp_dir * filename * ".mat", username, password, hostname)
 
     println("Reading iteration finished: ", Dates.now())
 
