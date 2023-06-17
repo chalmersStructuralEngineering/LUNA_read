@@ -18,7 +18,7 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
 
         if dec_data["message type"] == "measurement" && !isempty(dec_data["data"])
             for i = 1:8
-                # println(counter += 1)
+                println(counter += 1)
                 old_values = getfield(data, j_map[i])
                 new_values = isempty(old_values) ? new_data : vcat(old_values, new_data)
                 setfield!(data, j_map[i], new_values)
@@ -41,7 +41,7 @@ end
 
 
 function filter_extreme_values(data_in)
-    
+
     data_in = filloutliers(data_in, "moving_mean", 11)
     data_out = mean(data_in, dims=1)  # Similar to 'mean' function in MATLAB
     return data_out

@@ -56,7 +56,7 @@ println(n)
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
-    
+
     global raw_data, curr_time, j, n
     println("########################################")
     println("Iteration num.: ", j)
@@ -90,9 +90,9 @@ while cond # while true
     saveToMAT(raw_data, data_dir * filename * "_.mat")
 
     # Upload to FTP (Box) server
-    username = ENV["FTP_USERNAME"]
-    password = ENV["FTP_PASSWORD"]
-    hostname = ENV["FTP_HOSTNAME"]
+    username = ENV["FTP_USERNAME_box"]
+    password = ENV["FTP_PASSWORD_box"]
+    hostname = ENV["FTP_HOSTNAME_box"]
 
     uploadFileToFTP(data_dir * filename * ".jld2", ftp_dir * filename * ".jld2", username, password, hostname)
     uploadFileToFTP(data_dir * filename * ".mat", ftp_dir * filename * ".mat", username, password, hostname)
