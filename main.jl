@@ -6,6 +6,7 @@ using JLD2
 include("get_data_2.jl")
 include("uploadFileToFTP.jl")
 include("saveToMat.jl")
+include("sendEmail.jl")
 
 mutable struct MyStruct
     ch1::Matrix{Float64}
@@ -98,6 +99,11 @@ while cond # while true
     uploadFileToFTP(data_dir * filename * "_.mat", ftp_dir * filename * ".mat", username, password, hostname)
 
     println("Reading iteration finished: ", Dates.now())
+
+    # Send email every 24 iterations (4 hours)
+    if mod(j, 24) == 0
+        sendEmail(ENV["SMTP_USERNAME_ch"], ENV["SMTP_PASSWORD_ch"], ENV["SMTP_HOSTNAME_ch"])
+    end
 
     # 50 MB, splitting of files if they are too big
     if filesize(data_dir * filename * ".jld2") > 50000000
