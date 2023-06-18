@@ -101,8 +101,9 @@ while cond # while true
     println("Reading iteration finished: ", Dates.now())
 
     # Send email every 24 iterations (4 hours)
+    rcpt = ["<fignasi@chalmers.se>"]
     if mod(j, 24) == 0
-        sendEmail(ENV["SMTP_USERNAME_ch"], ENV["SMTP_PASSWORD_ch"], ENV["SMTP_HOSTNAME_ch"])
+        sendEmail(ENV["SMTP_USERNAME_ch"], ENV["SMTP_PASSWORD_ch"], ENV["SMTP_HOSTNAME_ch"], rcpt)
     end
 
     # 50 MB, splitting of files if they are too big
@@ -112,6 +113,7 @@ while cond # while true
         j = 1
         n += 1
     end
+
     toc = now()  # equivalent to MATLAB's toc
     elapsed = Dates.value(toc - tic) / 1000000  # elapsed time in seconds
     println("Elapsed time: ", elapsed)

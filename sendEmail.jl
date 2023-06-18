@@ -1,11 +1,12 @@
 using SMTPClient
 
-function sendEmail(user, pwrd, host)
+function sendEmail(user, pwrd, host, rcpt)
     opt = SendOptions(
         isSSL=false,
         username=user,
         passwd=pwrd)
     #Provide the message body as RFC5322 within an IO
+    # This is not working yet as it only sends an empty email, however it sends the email
     body = IOBuffer(
         "Date: Fri, 18 Oct 2013 21:44:29 +0100\r\n" *
         "From: You <you@gmail.com>\r\n" *
@@ -13,8 +14,8 @@ function sendEmail(user, pwrd, host)
         "Subject: PRC Test\r\n" *
         "\r\n" *
         "LUNA reading\r\n")
-    rcpt = ["<fignasi@chalmers.se>"]
     from = "<fignasi@chalmers.se>"
+    # This is needed as the email is not sent otherwise, it fails sometimes the first time
     try
         send(host, rcpt, from, body, opt)
     catch e
