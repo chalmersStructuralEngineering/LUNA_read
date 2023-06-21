@@ -1,12 +1,11 @@
 using Dates
-using MAT
 using JLD2
 
-# get_data2.jl to run locally wothout any socket connection
-include("get_data_2.jl")
-include("uploadFileToFTP.jl")
-include("saveToMat.jl")
-include("sendEmail.jl")
+# get_data2.jl to run locally without any socket connection
+include("./functions/get_data.jl")
+include("./functions/uploadFileToFTP.jl")
+include("./functions/saveToMat.jl")
+include("./functions/sendEmail.jl")
 
 mutable struct MyStruct
     ch1::Matrix{Float64}
