@@ -1,6 +1,6 @@
 using FTPClient
 
-function uploadFileToFTP(filepath, remote_path, user, pwrd, host)
+function uploadFileToFTP(filepath, remote_path, user, pwrd, host, rcpt)
 
     ftp_options = RequestOptions(hostname=host,
         username=user,
@@ -19,9 +19,10 @@ function uploadFileToFTP(filepath, remote_path, user, pwrd, host)
     catch e
         println("Failed to upload the file.")
         println(e)
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to upload file to FTP server!")
     finally
         # Remember to close the FTP connection
         close(ftp)
     end
-    
+
 end

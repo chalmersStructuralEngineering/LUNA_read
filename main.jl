@@ -53,18 +53,26 @@ end
 # Now you can access the value of n
 println(n)
 
+# Recipient of the email with the error message
+rcpt = ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"]
 
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
 
-    global raw_data, curr_time, j, n
+    global raw_data, curr_time, j, n, rcpt
     println("########################################")
     println("Iteration num.: ", j)
 
     tic = now()  # equivalent to MATLAB's tic
-
-    data, timeF = get_data(ts, j_map)
+    try
+        data, timeF = get_data(ts, j_map)
+    catch e
+        println("Error in get_data")
+        println(e)
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
+        exit(1)
+    end
     for i in 1:8
         old_values = getfield(raw_data, j_map[i])
         new_values = getfield(data, j_map[i])
@@ -90,20 +98,22 @@ while cond # while true
     # Save data in MATLAB format
     saveToMAT(raw_data, data_dir * filename * "_.mat")
 
+
     # Upload to FTP (Box) server
+
     username = ENV["FTP_USERNAME_box"]
     password = ENV["FTP_PASSWORD_box"]
     hostname = ENV["FTP_HOSTNAME_box"]
 
-    uploadFileToFTP(data_dir * filename * ".jld2", ftp_dir * filename * ".jld2", username, password, hostname)
-    uploadFileToFTP(data_dir * filename * "_.mat", ftp_dir * filename * ".mat", username, password, hostname)
+    uploadFileToFTP(data_dir * filename * ".jld2", ftp_dir * filename * ".jld2", username, password, hostname, rcpt)
+    uploadFileToFTP(data_dir * filename * "_.mat", ftp_dir * filename * ".mat", username, password, hostname, rcpt)
+
 
     println("Reading iteration finished: ", Dates.now())
 
-    # Send email every 24 iterations (4 hours)
-    rcpt = ["<fignasi@chalmers.se>"]
+    # Send control email every 24 iterations (4 hours)
     if mod(j, 24) == 0
-        sendEmail(ENV["SMTP_USERNAME_ch"], ENV["SMTP_PASSWORD_ch"], ENV["SMTP_HOSTNAME_ch"], rcpt)
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Control reading every 4h!")
     end
 
     # 50 MB, splitting of files if they are too big

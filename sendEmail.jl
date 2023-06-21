@@ -8,7 +8,7 @@ function sendEmail(user, pwrd, host, rcpt, content)
 
     body = IOBuffer(
         "Date: Fri, 18 Oct 2013 21:44:29 +0100\r\n" *
-        "From: You <natxofp@gmail.com>\r\n" *
+        "From: Ignasi <fignasi@chalmers.se>\r\n" *
         "To: fignasi@chalmers.se\r\n" *
         "Subject: PRC Test\r\n" *
         "\r\n" * content *
