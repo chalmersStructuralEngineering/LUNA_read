@@ -7,7 +7,7 @@ using FillOutliers
 function get_data(ts, j_map)  # ts: Number of calls per measurement to get the mean value
 
     data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
-    str = matread("matlab.mat")
+    str = matread("./functions/matlab.mat")
     counter = 0
     i = 0
     while counter < ts

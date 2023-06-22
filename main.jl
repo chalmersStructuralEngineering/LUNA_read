@@ -36,7 +36,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 5  # Time interval between readings in seconds
+int = 10  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -75,11 +75,12 @@ while cond # while true
 
     tic = now()  # equivalent to MATLAB's tic
     try
+        global ts, j_map
         data, timeF = get_data(ts, j_map)
     catch e
         println("Error in get_data")
         println(e)
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
+        # sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
         exit(1)
     end
     for i in 1:8
@@ -105,7 +106,7 @@ while cond # while true
     j += 1
 
     #### Divide the data series, save files and upload to the corresponding folders
-    # Divide data series in 2 parts
+    # Divide data series in 2 parts corresponding to the 2 tests
     setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]) for i in 1:4)
     setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]) for i in 1:4)
 
@@ -118,7 +119,6 @@ while cond # while true
     saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
 
     # Upload to FTP (Box) server
-
     username = ENV["FTP_USERNAME_box"]
     password = ENV["FTP_PASSWORD_box"]
     hostname = ENV["FTP_HOSTNAME_box"]
