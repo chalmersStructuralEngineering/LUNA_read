@@ -68,8 +68,8 @@ rcpt = ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalm
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
-
     global raw_data, curr_time, j, n, rcpt
+
     println("########################################")
     println("Iteration num.: ", j)
 
