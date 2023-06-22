@@ -26,7 +26,7 @@ include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
 
 
-
+uFTP = true  # upload to FTP
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
 ftp_dir_DTs2 = "/Davids_test/Series_2/"
@@ -38,7 +38,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 8  # Number of readings per measurement point to divide between number of active channels
+ts = 60  # Number of readings per measurement point to divide between number of active channels
 int = 10  # Time interval between readings in seconds
 j = 1
 
@@ -76,7 +76,7 @@ while cond # while true
     println("########################################")
     println("Iteration num.: ", j)
 
-    tic = now()  # equivalent to MATLAB's tic
+    tic = Dates.now()  # equivalent to MATLAB's tic
     try
         global ts, j_map, data, timeF
         data, timeF = get_data(ts, j_map)
@@ -84,7 +84,7 @@ while cond # while true
         println("Error in get_data")
         println(e)
         # sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
-        exit(1)
+        #exit(1)
     end
     for i in 1:8
         old_values = getfield(raw_data, j_map[i])
@@ -123,20 +123,19 @@ while cond # while true
     # Save data in MATLAB format
     saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
     saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
+    if uFTP == true
+        # Upload to FTP (Box) server
+        println("Uploading data to FTP server")
+        username = ENV["FTP_USERNAME_box"]
+        password = ENV["FTP_PASSWORD_box"]
+        hostname = ENV["FTP_HOSTNAME_box"]
 
-    # Upload to FTP (Box) server
-    println("Uploading data to FTP server")
-    username = ENV["FTP_USERNAME_box"]
-    password = ENV["FTP_PASSWORD_box"]
-    hostname = ENV["FTP_HOSTNAME_box"]
+        uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * ".jld2", ftp_dir_DTs2 * filename_DTs2 * ".jld2", username, password, hostname, rcpt)
+        uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_.mat", ftp_dir_DTs2 * filename_DTs2 * ".mat", username, password, hostname, rcpt)
 
-    uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * ".jld2", ftp_dir_DTs2 * filename_DTs2 * ".jld2", username, password, hostname, rcpt)
-    uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_.mat", ftp_dir_DTs2 * filename_DTs2 * ".mat", username, password, hostname, rcpt)
-
-    uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
-    uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
-
-
+        uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
+        uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
+    end
     println("Reading iteration finished: ", Dates.now())
 
     # Send control email every 24 iterations (4 hours)
@@ -145,15 +144,15 @@ while cond # while true
     end
 
     # 50 MB, splitting of files if they are too big
-    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 500000
+    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         curr_time = []
         j = 1
         n += 1
     end
 
-    toc = now()  # equivalent to MATLAB's toc
-    elapsed = Dates.value(toc - tic) / 1000000  # elapsed time in seconds
+    toc = Dates.now()  # equivalent to MATLAB's toc
+    elapsed = Dates.value(toc - tic) / 1000 # elapsed time in seconds
     println("Elapsed time: ", elapsed)
     println("########################################")
 
