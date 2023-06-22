@@ -81,7 +81,7 @@ function filter_extreme_values(data_in)
     for i = 1:size(data_in, 1)
         data_in_b[i, :] = filloutliers(data_in[i, :], "moving mean", 11)
     end
-    data_out = mean(data_in, dims=1)  # Similar to 'mean' function in MATLAB
+    data_out = mean(data_in_b, dims=1)  # Similar to 'mean' function in MATLAB
     return data_out
 
 end

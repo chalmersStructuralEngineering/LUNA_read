@@ -83,8 +83,8 @@ while cond # while true
     catch e
         println("Error in get_data")
         println(e)
-        # sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
-        #exit(1)
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
+        exit(1)
     end
     for i in 1:8
         old_values = getfield(raw_data, j_map[i])
