@@ -143,9 +143,9 @@ uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[deps.FillOutliers]]
 deps = ["DataFrames", "Interpolations", "PackageCompatUI", "Statistics", "StatsBase"]
-git-tree-sha1 = "585e64f5ada334cfb2e244f22edb460c4214f586"
+git-tree-sha1 = "1f1da2ae4c2d771231e0863809741da0113b358a"
 uuid = "36498ab6-316f-4d40-82fe-0951719b46b4"
-version = "0.4.0"
+version = "0.4.1"
 
 [[deps.Formatting]]
 deps = ["Printf"]
