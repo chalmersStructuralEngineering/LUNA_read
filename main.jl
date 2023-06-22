@@ -26,7 +26,7 @@ include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
 
 
-uFTP = true  # upload to FTP
+uFTP = false  # upload to FTP
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
 ftp_dir_DTs2 = "/Davids_test/Series_2/"
@@ -39,7 +39,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 10  # Time interval between readings in seconds
+int = 60  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -66,7 +66,7 @@ end
 println(n)
 
 # Recipient of the email with the error message
-rcpt = ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"]
+rcpt = ["<fignasi@chalmers.se>"]
 
 # Starting loop for reading and storing data every (int) seconds
 cond = true
