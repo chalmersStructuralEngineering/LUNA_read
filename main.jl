@@ -25,7 +25,7 @@ mutable struct MyStruct4
 end
 
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
-data_dir_PRC = "./test_data/Davids_test/Series_2/"
+data_dir_PRC = "./test_data/PRC/"
 ftp_dir_DTs2 = "/Natxo/"#"/Davids_test/Series_2/"
 ftp_dir_PRC = "/Natxo/"#"/Davids_test/Series_2/"
 

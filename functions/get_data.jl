@@ -18,7 +18,7 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
             println("Reading iteration started: ", Dates.now())
         end
         try
-            global t = Sockets.connect("127.0.0.1", 30000)
+            global t = Sockets.connect("127.0.0.1", 50000)
             println("Established connection with Luna, reading data")
             att = 0
             cond = false
