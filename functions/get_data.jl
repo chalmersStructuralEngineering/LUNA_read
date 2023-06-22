@@ -4,17 +4,6 @@ using JSON3
 using Statistics
 using FillOutliers
 
-mutable struct MyStruct8
-    ch1::Matrix{Float64}
-    ch2::Matrix{Float64}
-    ch3::Matrix{Float64}
-    ch4::Matrix{Float64}
-    ch5::Matrix{Float64}
-    ch6::Matrix{Float64}
-    ch7::Matrix{Float64}
-    ch8::Matrix{Float64}
-end
-
 function get_data(ts, j_map)  # ts: Number of calls per measurement to get the mean value
 
     data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
@@ -81,7 +70,7 @@ end
 
 function filter_extreme_values(data_in)
 
-    data_in = filloutliers(data_in, "move_mean", 11)
+    # data_in = filloutliers(data_in, "move mean", 11)
     data_out = mean(data_in, dims=1)  # Similar to 'mean' function in MATLAB
     return data_out
 

@@ -1,12 +1,6 @@
 using Dates
 using JLD2
 
-# get_data2.jl to run locally without any socket connection
-include("./functions/get_data.jl")
-include("./functions/uploadFileToFTP.jl")
-include("./functions/saveToMat.jl")
-include("./functions/sendEmail.jl")
-
 mutable struct MyStruct8
     ch1::Matrix{Float64}
     ch2::Matrix{Float64}
@@ -17,6 +11,7 @@ mutable struct MyStruct8
     ch7::Matrix{Float64}
     ch8::Matrix{Float64}
 end
+
 mutable struct MyStruct4
     ch1::Matrix{Float64}
     ch2::Matrix{Float64}
@@ -24,10 +19,18 @@ mutable struct MyStruct4
     ch4::Matrix{Float64}
 end
 
+# get_data2.jl to run locally without any socket connection
+include("./functions/get_data.jl")
+include("./functions/uploadFileToFTP.jl")
+include("./functions/saveToMat.jl")
+include("./functions/sendEmail.jl")
+
+
+
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
 ftp_dir_DTs2 = "/Davids_test/Series_2/"
-ftp_dir_PRC = "/Post_DOFS/Series_2/"#"/Davids_test/Series_2/"
+ftp_dir_PRC = "/PostDOFS/Series_2/"#"/Davids_test/Series_2/"
 
 raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
@@ -105,6 +108,7 @@ while cond # while true
 
     j += 1
 
+    println("Saving data loacally")
     #### Divide the data series, save files and upload to the corresponding folders
     # Divide data series in 2 parts corresponding to the 2 tests
     for i = 1:4
@@ -121,6 +125,7 @@ while cond # while true
     saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
 
     # Upload to FTP (Box) server
+    println("Uploading data to FTP server")
     username = ENV["FTP_USERNAME_box"]
     password = ENV["FTP_PASSWORD_box"]
     hostname = ENV["FTP_HOSTNAME_box"]
