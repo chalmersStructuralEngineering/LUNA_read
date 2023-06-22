@@ -70,7 +70,7 @@ end
 
 function filter_extreme_values(data_in)
 
-    # data_in = filloutliers(data_in, "move mean", 11)
+    #data_in = filloutliers(data_in, "moving mean", 11)
     data_out = mean(data_in, dims=1)  # Similar to 'mean' function in MATLAB
     return data_out
 
