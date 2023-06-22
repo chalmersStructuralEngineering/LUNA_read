@@ -4,9 +4,20 @@ using JSON3
 using Statistics
 using FillOutliers
 
+mutable struct MyStruct8
+    ch1::Matrix{Float64}
+    ch2::Matrix{Float64}
+    ch3::Matrix{Float64}
+    ch4::Matrix{Float64}
+    ch5::Matrix{Float64}
+    ch6::Matrix{Float64}
+    ch7::Matrix{Float64}
+    ch8::Matrix{Float64}
+end
+
 function get_data(ts, j_map)  # ts: Number of calls per measurement to get the mean value
 
-    data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+    data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 
     fail = 0  # variable to check the status of the connection to Luna
     att = 0  # control num attempts to establish connection with Luna
@@ -44,7 +55,7 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
         dec_data = JSON3.read(str)
         # Mapping between JSON keys and field names of MyStruct
         data_values = replace(dec_data["data"], nothing => NaN)
-        new_data = reshape(data_values, 1, :)
+        new_data = convert(Matrix{Float64}, reshape(data_values, 1, :))
 
         if dec_data["message type"] == "measurement" && !isempty(dec_data["data"])
             println(counter += 1)
@@ -62,7 +73,7 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
         setfield!(data, j_map[i], filter_extreme_values(getfield(data, j_map[i])))
     end
 
-    curr_time = Dates.now()
+    curr_time = Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS")
     return data, curr_time
 
 end

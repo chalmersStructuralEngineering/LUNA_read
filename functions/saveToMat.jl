@@ -8,10 +8,6 @@ function saveToMAT(data, time, folder)
         "ch2" => data.ch2,
         "ch3" => data.ch3,
         "ch4" => data.ch4,
-        "ch5" => data.ch5,
-        "ch6" => data.ch6,
-        "ch7" => data.ch7,
-        "ch8" => data.ch8,
         "time" => time
     )
 

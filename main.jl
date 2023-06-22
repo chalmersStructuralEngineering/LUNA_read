@@ -26,8 +26,8 @@ end
 
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
-ftp_dir_DTs2 = "/Natxo/"#"/Davids_test/Series_2/"
-ftp_dir_PRC = "/Natxo/"#"/Davids_test/Series_2/"
+ftp_dir_DTs2 = "/Davids_test/Series_2/"
+ftp_dir_PRC = "/Post_DOFS/Series_2/"#"/Davids_test/Series_2/"
 
 raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
@@ -35,7 +35,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 60  # Number of readings per measurement point to divide between number of active channels
+ts = 8  # Number of readings per measurement point to divide between number of active channels
 int = 10  # Time interval between readings in seconds
 j = 1
 
@@ -75,7 +75,7 @@ while cond # while true
 
     tic = now()  # equivalent to MATLAB's tic
     try
-        global ts, j_map
+        global ts, j_map, data, timeF
         data, timeF = get_data(ts, j_map)
     catch e
         println("Error in get_data")
@@ -107,8 +107,10 @@ while cond # while true
 
     #### Divide the data series, save files and upload to the corresponding folders
     # Divide data series in 2 parts corresponding to the 2 tests
-    setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]) for i in 1:4)
-    setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]) for i in 1:4)
+    for i = 1:4
+        setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]))
+        setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]))
+    end
 
     # Save data in Julia format
     @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
@@ -138,7 +140,7 @@ while cond # while true
     end
 
     # 50 MB, splitting of files if they are too big
-    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000
+    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 500000
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         curr_time = []
         j = 1
