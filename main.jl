@@ -27,6 +27,9 @@ include("./functions/sendEmail.jl")
 
 
 uFTP = false  # upload to FTP
+sMat = true  # save to .mat file
+sJLD2 = true  # save to .jld2 file
+
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
 ftp_dir_DTs2 = "/Davids_test/Series_2/"
@@ -115,32 +118,37 @@ while cond # while true
         setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]))
         setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]))
     end
-
-    # Save data in Julia format
-    @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
-    @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
-
-    # Save data in MATLAB format
-    saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
-    saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
-    if uFTP == true
-        # Upload to FTP (Box) server
-        println("Uploading data to FTP server")
-        username = ENV["FTP_USERNAME_box"]
-        password = ENV["FTP_PASSWORD_box"]
-        hostname = ENV["FTP_HOSTNAME_box"]
-
-        uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * ".jld2", ftp_dir_DTs2 * filename_DTs2 * ".jld2", username, password, hostname, rcpt)
-        uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_.mat", ftp_dir_DTs2 * filename_DTs2 * ".mat", username, password, hostname, rcpt)
-
-        uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
-        uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
+    if sJLD2 == true
+        # Save data in Julia format
+        @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
+        @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
     end
+    if sMat == true
+        # Save data in MATLAB format
+        saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
+        saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
+    end
+    if uFTP == true
+        if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
+            # Upload to FTP (Box) server
+            println("Uploading data to FTP server")
+            username = ENV["FTP_USERNAME_box"]
+            password = ENV["FTP_PASSWORD_box"]
+            hostname = ENV["FTP_HOSTNAME_box"]
+
+            uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * ".jld2", ftp_dir_DTs2 * filename_DTs2 * ".jld2", username, password, hostname, rcpt)
+            uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_.mat", ftp_dir_DTs2 * filename_DTs2 * ".mat", username, password, hostname, rcpt)
+
+            uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
+            uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
+        end
+    end
+
     println("Reading iteration finished: ", Dates.now())
 
     # Send control email every 24 iterations (4 hours)
     if mod(j, 24) == 0
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Control reading every 4h!")
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Reading control every 4h!")
     end
 
     # 50 MB, splitting of files if they are too big
@@ -151,7 +159,7 @@ while cond # while true
         n += 1
     end
 
-    toc = Dates.now()  # equivalent to MATLAB's toc
+    toc = Dates.now()
     elapsed = Dates.value(toc - tic) / 1000 # elapsed time in seconds
     println("Elapsed time: ", elapsed)
     println("########################################")
