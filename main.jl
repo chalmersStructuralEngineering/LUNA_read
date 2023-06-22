@@ -7,7 +7,7 @@ include("./functions/uploadFileToFTP.jl")
 include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
 
-mutable struct MyStruct
+mutable struct MyStruct8
     ch1::Matrix{Float64}
     ch2::Matrix{Float64}
     ch3::Matrix{Float64}
@@ -17,11 +17,21 @@ mutable struct MyStruct
     ch7::Matrix{Float64}
     ch8::Matrix{Float64}
 end
+mutable struct MyStruct4
+    ch1::Matrix{Float64}
+    ch2::Matrix{Float64}
+    ch3::Matrix{Float64}
+    ch4::Matrix{Float64}
+end
 
-data_dir = "./test_data/Davids_test/Series_2/"
-ftp_dir = "/Natxo/"#"/Davids_test/Series_2/"
+data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
+data_dir_PRC = "./test_data/Davids_test/Series_2/"
+ftp_dir_DTs2 = "/Natxo/"#"/Davids_test/Series_2/"
+ftp_dir_PRC = "/Natxo/"#"/Davids_test/Series_2/"
 
-raw_data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
+DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
@@ -31,7 +41,7 @@ j = 1
 
 curr_time = []
 
-listing = readdir(data_dir)
+listing = readdir(data_dir_PRC)
 
 # check if the directory is empty
 if isempty(listing)
@@ -82,21 +92,30 @@ while cond # while true
     curr_time = vcat(curr_time, timeF)
 
     if n < 10
-        filename = "DTs2_numfile_00" * string(n)
+        filename_DTs2 = "DTs2_numfile_00" * string(n)
+        filename_PRC = "PRC_numfile_00" * string(n)
     elseif n < 100
-        filename = "DTs2_numfile_0" * string(n)
+        filename_DTs2 = "DTs2_numfile_0" * string(n)
+        filename_PRC = "PRC_numfile_0" * string(n)
     else
-        filename = "DTs2_numfile_" * string(n)
+        filename_DTs2 = "DTs2_numfile_" * string(n)
+        filename_PRC = "PRC_numfile_" * string(n)
     end
 
     j += 1
 
+    #### Divide the data series, save files and upload to the corresponding folders
+    # Divide data series in 2 parts
+    setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]) for i in 1:4)
+    setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]) for i in 1:4)
+
     # Save data in Julia format
-    @save data_dir * filename * ".jld2" raw_data curr_time
+    @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
+    @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
 
     # Save data in MATLAB format
-    saveToMAT(raw_data, data_dir * filename * "_.mat")
-
+    saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
+    saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
 
     # Upload to FTP (Box) server
 
@@ -104,8 +123,11 @@ while cond # while true
     password = ENV["FTP_PASSWORD_box"]
     hostname = ENV["FTP_HOSTNAME_box"]
 
-    uploadFileToFTP(data_dir * filename * ".jld2", ftp_dir * filename * ".jld2", username, password, hostname, rcpt)
-    uploadFileToFTP(data_dir * filename * "_.mat", ftp_dir * filename * ".mat", username, password, hostname, rcpt)
+    uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * ".jld2", ftp_dir_DTs2 * filename_DTs2 * ".jld2", username, password, hostname, rcpt)
+    uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_.mat", ftp_dir_DTs2 * filename_DTs2 * ".mat", username, password, hostname, rcpt)
+
+    uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
+    uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
 
 
     println("Reading iteration finished: ", Dates.now())
@@ -116,8 +138,8 @@ while cond # while true
     end
 
     # 50 MB, splitting of files if they are too big
-    if filesize(data_dir * filename * ".jld2") > 50000000
-        raw_data = MyStruct([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000
+        raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         curr_time = []
         j = 1
         n += 1
