@@ -27,6 +27,7 @@ include("./functions/sendEmail.jl")
 
 
 uFTP = true  # upload to FTP
+dSFTP = true  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
@@ -111,7 +112,18 @@ while cond # while true
 
     j += 1
 
-    println("Saving data loacally")
+    if dSFTP == true
+        println("Downloading load cell data from SFTP server")
+        # Download data from SFTP server
+        username = ENV["SFTP_USERNAME_lc"]
+        password = ENV["SFTP_PASSWORD_lc"]
+        hostname = ENV["SFTP_HOSTNAME_lc"]
+        remote_path = "/data/stream.json"
+        loads = downloadFileFromSFTP(remote_path, username, password, hostname)
+        println("Load cell data downloaded")
+    end
+
+
     #### Divide the data series, save files and upload to the corresponding folders
     # Divide data series in 2 parts corresponding to the 2 tests
     for i = 1:4
@@ -119,15 +131,20 @@ while cond # while true
         setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]))
     end
     if sJLD2 == true
+        println("Saving data to .jld2 file")
         # Save data in Julia format
         @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
         @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
+        println("Data saved to .jld2 file")
     end
     if sMat == true
+        println("Saving data to MATLAB file")
         # Save data in MATLAB format
         saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
         saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
+        println("Data saved to MATLAB file")
     end
+
     if uFTP == true
         if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
             # Upload to FTP (Box) server
