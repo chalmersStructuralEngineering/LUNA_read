@@ -6,7 +6,7 @@ function downloadFileToSFTP(filepath, remote_path, user, pwrd, host, rcpt)
         username=user,
         password=pwrd,
         port=22,
-        ssl=true,
+        ssl=fal,
         implicit=true,
         active_mode=false)
 
@@ -39,6 +39,6 @@ ftp = FTP(ftp_options)  # Create a new FTP object
 ftp_get(ftp_options, "/data/stream.json")
 
 using Downloads
-Downloads.Curl.PROTOCOL_STATUS["sftp"] = Downloads.Curl.status_zero_ok
+# Downloads.Curl.PROTOCOL_STATUS["sftp"] = Downloads.Curl.status_zero_ok
 Downloads.download("sftp://admin:Sommarsol19@129.16.170.231:22/data/stream.json")
 
