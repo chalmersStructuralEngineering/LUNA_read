@@ -26,7 +26,7 @@ include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
 
 
-uFTP = false  # upload to FTP
+uFTP = true  # upload to FTP
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
