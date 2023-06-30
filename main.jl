@@ -43,7 +43,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 60  # Time interval between readings in seconds
+int = 600  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -70,7 +70,7 @@ end
 println(n)
 
 # Recipient of the email with the error message
-rcpt = ["<fignasi@chalmers.se>"]
+rcpt = ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"]
 
 # Starting loop for reading and storing data every (int) seconds
 cond = true
@@ -130,17 +130,26 @@ while cond # while true
         setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]))
         setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]))
     end
+
     if sJLD2 == true
         println("Saving data to .jld2 file")
         # Save data in Julia format
+
         @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
         @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
+        if isdefined(Main, :loads)
+            @save data_dir_DTs2 * filename_DTs2 * ".jld2" loads -append
+        end
         println("Data saved to .jld2 file")
     end
     if sMat == true
         println("Saving data to MATLAB file")
         # Save data in MATLAB format
-        saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
+        if isdefined(Main, :loads)
+            saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat", loads)
+        else
+            saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
+        end
         saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
         println("Data saved to MATLAB file")
     end
@@ -160,7 +169,6 @@ while cond # while true
             uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
         end
     end
-
     println("Reading iteration finished: ", Dates.now())
 
     # Send control email every 24 iterations (4 hours)
@@ -169,7 +177,7 @@ while cond # while true
     end
 
     # 50 MB, splitting of files if they are too big
-    if filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000
+    if (filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000) || (filesize(data_dir_DTs2 * filename_DTs2 * ".jld2") > 50000000)
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         curr_time = []
         j = 1
