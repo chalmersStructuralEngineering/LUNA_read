@@ -28,7 +28,7 @@ include("./functions/get_loads.jl")
 
 
 uFTP = true  # upload to FTP
-dSFTP = false  # download from SFTP load cells
+dSFTP = true  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
@@ -44,7 +44,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 10  # Time interval between readings in seconds
+int = 600  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -126,9 +126,12 @@ while cond # while true
         println("Load cell data saved")
         if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
             # Upload to FTP (Box) server
-            println("Uploading data to FTP server")
+            println("Uploading load data to FTP server")
+            username = ENV["FTP_USERNAME_box"]
+            password = ENV["FTP_PASSWORD_box"]
+            hostname = ENV["FTP_HOSTNAME_box"]
             uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_loads.jld2", ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2", username, password, hostname, rcpt)
-            println("Data uploaded to FTP server")
+            println("Load data uploaded to FTP server")
         end
     end
 
