@@ -1,104 +1,64 @@
-function ssl_tests(implicit::Bool=true)
-    mode = implicit ? :implicit : :explicit
+using Dates
+using JLD2
 
-    FTPServer.init()
+mutable struct MyStruct8
+    ch1::Matrix{Float64}
+    ch2::Matrix{Float64}
+    ch3::Matrix{Float64}
+    ch4::Matrix{Float64}
+    ch5::Matrix{Float64}
+    ch6::Matrix{Float64}
+    ch7::Matrix{Float64}
+    ch8::Matrix{Float64}
+end
 
-    FTPServer.serve(; security=mode) do server
-        opts = (
-            :hostname => hostname(server),
-            :port => port(server),
-            :username => username(server),
-            :password => password(server),
-            :ssl => true,
-            :implicit => implicit,
-            :verify_peer => false,
-        )
+mutable struct MyStruct4
+    ch1::Matrix{Float64}
+    ch2::Matrix{Float64}
+    ch3::Matrix{Float64}
+    ch4::Matrix{Float64}
+end
+mutable struct MyStruct1
+    data::Matrix{Float64}
+end
 
-        options = RequestOptions(; opts..., active_mode=false)
-        # Test implicit/exlicit ftp ssl scheme is set correctly
-        @test options.uri.scheme == (implicit ? "ftps" : "ftpes")
-        test_download(options)
-        test_upload(options)
-        test_cmd(options)
+# get_data2.jl to run locally without any socket connection
+include("./functions/get_data.jl")
+include("./functions/uploadFileToFTP.jl")
+include("./functions/saveToMat.jl")
+include("./functions/sendEmail.jl")
+include("./functions/get_loads.jl")
 
-        options = RequestOptions(; opts..., active_mode=true)
-        test_download(options)
-        test_upload(options)
-        test_cmd(options)
+data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
+data_dir_PRC = "./test_data/PRC/"
+ftp_dir_DTs2 = "/Davids_test/Series_2/"
+ftp_dir_PRC = "/PostDOFS/Series_2/"#"/Davids_test/Series_2/"
+n = 1
+if n < 10
+    filename_DTs2 = "DTs2_numfile_00" * string(n)
+    filename_PRC = "PRC_numfile_00" * string(n)
+elseif n < 100
+    filename_DTs2 = "DTs2_numfile_0" * string(n)
+    filename_PRC = "PRC_numfile_0" * string(n)
+else
+    filename_DTs2 = "DTs2_numfile_" * string(n)
+    filename_PRC = "PRC_numfile_" * string(n)
+end
 
-        options = RequestOptions(; opts..., active_mode=false)
-        ctxt, resp = ftp_connect(options)
-        @test resp.code == complete_transfer_code
-
-        test_cmd(ctxt)
-        test_download(ctxt)
-        test_upload(ctxt)
-
-        options = RequestOptions(; opts..., active_mode=true)
-        ctxt, resp = ftp_connect(options)
-        @test resp.code == complete_transfer_code
-
-        test_cmd(ctxt)
-        test_download(ctxt)
-        test_upload(ctxt)
+for i = 1:4
+    username = ENV["SFTP_USERNAME_lc"]
+    password = ENV["SFTP_PASSWORD_lc"]
+    hostname = ENV["SFTP_HOSTNAME_lc"]
+    remote_path = "/data/stream.json"
+    loads = downloadFileFromSFTP(remote_path, username, password, hostname)
+    if i == 1
+        println(i)
+        global load_data = loads["data"][:]'
+    else
+        println(i)
+        global load_data = [load_data; loads["data"][:]']
     end
-end
-
-function test_download(options::RequestOptions)
-    server_path = "test_download.txt"
-    resp = ftp_get(options, server_path)
-    @test resp.code == complete_transfer_code
-    @test read(resp.body, String) == read(joinpath(HOMEDIR, server_path), String)
-end
-
-function test_upload(options::RequestOptions)
-    client_path = "test_upload.txt"
-    local_server_path = joinpath(HOMEDIR, client_path)
-    cleanup_file(local_server_path)
-    resp = copy_and_wait(local_server_path) do
-        open(client_path) do fp
-            ftp_put(options, client_path, fp)
-        end
+    if i == 4
+        global load_data = loads["data"][:]'
     end
-    @test resp.code == complete_transfer_code
-    @test read(local_server_path, String) == read(client_path, String)
-    rm(local_server_path)
-end
-
-function test_cmd(options::RequestOptions)
-    resp = ftp_command(options, "PWD")
-    @test resp.code == 257
-    @test read(resp.body, String) == ""
-end
-
-function test_download(ctxt::ConnContext)
-    server_path = "test_download.txt"
-    resp = ftp_get(ctxt, server_path)
-    @test resp.code == complete_transfer_code
-    @test read(resp.body, String) == read(joinpath(HOMEDIR, server_path), String)
-end
-
-function test_upload(ctxt::ConnContext)
-    client_path = "test_upload.txt"
-    local_server_path = joinpath(HOMEDIR, client_path)
-    resp = copy_and_wait(local_server_path) do
-        open(client_path) do file
-            ftp_put(ctxt, client_path, file)
-        end
-    end
-    ftp_close_connection(ctxt)
-    @test resp.code == complete_transfer_code
-    @test read(client_path, String) == read(local_server_path, String)
-    rm(local_server_path)
-end
-
-function test_cmd(ctxt::ConnContext)
-    resp = ftp_command(ctxt, "PWD")
-    @test resp.code == 257
-    @test read(resp.body, String) == ""
-end
-
-@testset "ssl" begin
-    ssl_tests(true)
-    ssl_tests(false)
 end

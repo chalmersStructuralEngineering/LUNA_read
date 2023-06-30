@@ -121,8 +121,13 @@ while cond # while true
         hostname = ENV["SFTP_HOSTNAME_lc"]
         remote_path = "/data/stream.json"
         loads = downloadFileFromSFTP(remote_path, username, password, hostname)
+        if j == 1
+            global load_data = loads["data"][:]'
+        else
+            global load_data = [load_data; loads["data"][:]']
+        end
         println("Load cell data downloaded")
-        @save data_dir_DTs2 * filename_DTs2 * "_loads.jld2" loads curr_time
+        @save data_dir_DTs2 * filename_DTs2 * "_loads.jld2" load_data curr_time
         println("Load cell data saved")
         if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
             # Upload to FTP (Box) server
