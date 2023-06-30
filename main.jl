@@ -24,10 +24,11 @@ include("./functions/get_data.jl")
 include("./functions/uploadFileToFTP.jl")
 include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
+include("./functions/get_loads.jl")
 
 
 uFTP = true  # upload to FTP
-dSFTP = true  # download from SFTP load cells
+dSFTP = false  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
@@ -43,7 +44,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 600  # Time interval between readings in seconds
+int = 10  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -121,14 +122,22 @@ while cond # while true
         remote_path = "/data/stream.json"
         loads = downloadFileFromSFTP(remote_path, username, password, hostname)
         println("Load cell data downloaded")
+        @save data_dir_DTs2 * filename_DTs2 * "_loads.jld2" loads curr_time
+        println("Load cell data saved")
+        if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
+            # Upload to FTP (Box) server
+            println("Uploading data to FTP server")
+            uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_loads.jld2", ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2", username, password, hostname, rcpt)
+            println("Data uploaded to FTP server")
+        end
     end
 
 
     #### Divide the data series, save files and upload to the corresponding folders
     # Divide data series in 2 parts corresponding to the 2 tests
     for i = 1:4
-        setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i]))
-        setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i+4]))
+        setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i+4]))
+        setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i]))
     end
 
     if sJLD2 == true
@@ -137,19 +146,15 @@ while cond # while true
 
         @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
         @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
-        if isdefined(Main, :loads)
-            @save data_dir_DTs2 * filename_DTs2 * ".jld2" loads -append
-        end
         println("Data saved to .jld2 file")
+
     end
     if sMat == true
         println("Saving data to MATLAB file")
         # Save data in MATLAB format
-        if isdefined(Main, :loads)
-            saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat", loads)
-        else
-            saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
-        end
+
+        saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
+
         saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
         println("Data saved to MATLAB file")
     end

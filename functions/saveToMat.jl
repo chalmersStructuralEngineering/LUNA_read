@@ -1,6 +1,6 @@
 using MAT
 
-function saveToMAT(data, time, folder, loads=nothing)
+function saveToMAT(data, time, folder)
 
     # Convert your struct to a dict of arrays
     dict_data = Dict(
@@ -8,8 +8,7 @@ function saveToMAT(data, time, folder, loads=nothing)
         "ch2" => data.ch2,
         "ch3" => data.ch3,
         "ch4" => data.ch4,
-        "time" => time,
-        "loads" => loads
+        "time" => time
     )
 
     # Write the dict to a .mat file
