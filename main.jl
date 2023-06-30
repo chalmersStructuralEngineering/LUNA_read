@@ -111,7 +111,7 @@ while cond # while true
         filename_PRC = "PRC_numfile_" * string(n)
     end
 
-    j += 1
+
 
     if dSFTP == true
         println("Downloading load cell data from SFTP server")
@@ -188,7 +188,7 @@ while cond # while true
     if mod(j, 24) == 0
         sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Reading control every 4h!")
     end
-
+    j += 1
     # 50 MB, splitting of files if they are too big
     if (filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000) || (filesize(data_dir_DTs2 * filename_DTs2 * ".jld2") > 50000000)
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
