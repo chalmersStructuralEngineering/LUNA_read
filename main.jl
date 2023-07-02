@@ -168,7 +168,7 @@ while cond # while true
     end
 
     if uFTP == true
-        if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
+        #if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
             # Upload to FTP (Box) server
             println("Uploading data to FTP server")
             username = ENV["FTP_USERNAME_box"]
@@ -180,7 +180,7 @@ while cond # while true
 
             uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
             uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
-        end
+        #end
     end
     println("Reading iteration finished: ", Dates.now())
 
