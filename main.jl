@@ -129,7 +129,7 @@ while cond # while true
         println("Load cell data downloaded")
         @save data_dir_DTs2 * filename_DTs2 * "_loads.jld2" load_data curr_time
         println("Load cell data saved")
-        if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
+        #if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
             # Upload to FTP (Box) server
             println("Uploading load data to FTP server")
             username = ENV["FTP_USERNAME_box"]
@@ -137,7 +137,7 @@ while cond # while true
             hostname = ENV["FTP_HOSTNAME_box"]
             uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_loads.jld2", ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2", username, password, hostname, rcpt)
             println("Load data uploaded to FTP server")
-        end
+        #end
     end
 
 
