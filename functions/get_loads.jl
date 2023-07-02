@@ -9,7 +9,13 @@ function downloadFileFromSFTP(remote_path, user, pwrd, host)
         return loads
     catch e
         println("Error downloading file from SFTP server")
-        return nothing
+        loads = zeros(1, 11)
+
+        rcpt = ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"]
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"],
+            ENV["SMTP_HOSTNAME_gm"], rcpt, "Error reading loads")
+
+        return loads
     end
 
 end
