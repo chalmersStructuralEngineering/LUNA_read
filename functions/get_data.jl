@@ -51,13 +51,13 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
             if dec_data["message type"] == "measurement" && !isempty(dec_data["data"])
                 data_values = replace(dec_data["data"], nothing => NaN)
                 new_data = convert(Matrix{Float64}, reshape(data_values, 1, :))
-                println(counter += 1)
+                # println(counter += 1)
                 old_values = getfield(data, j_map[dec_data["channel"]])
                 new_values = isempty(old_values) ? new_data : vcat(old_values, new_data)
                 setfield!(data, j_map[dec_data["channel"]], new_values)
             end
         end
-        println("Reading successful")
+        println("Reading successful ", counter, " iterations")
         close(t)
         println("Closed connection with Luna")
 

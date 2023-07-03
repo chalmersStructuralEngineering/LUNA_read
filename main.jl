@@ -70,9 +70,6 @@ end
 # Now you can access the value of n
 println(n)
 
-# Recipient of the email with the error message
-rcpt = ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"]
-
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
@@ -88,9 +85,12 @@ while cond # while true
     catch e
         println("Error in get_data")
         println(e)
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to read data from Luna, Error in get_data")
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
+            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"],
+            "Failed to read data from Luna, Error in get_data")
         exit(1)
     end
+
     for i in 1:8
         old_values = getfield(raw_data, j_map[i])
         new_values = getfield(data, j_map[i])
@@ -116,28 +116,24 @@ while cond # while true
     if dSFTP == true
         println("Downloading load cell data from SFTP server")
         # Download data from SFTP server
-        username = ENV["SFTP_USERNAME_lc"]
-        password = ENV["SFTP_PASSWORD_lc"]
-        hostname = ENV["SFTP_HOSTNAME_lc"]
-        remote_path = "/data/stream.json"
-        loads = downloadFileFromSFTP(remote_path, username, password, hostname)
+        loads = downloadFileFromSFTP("/data/stream.json", ENV["SFTP_USERNAME_lc"], ENV["SFTP_PASSWORD_lc"], ENV["SFTP_HOSTNAME_lc"])
+
         if j == 1
             global load_data = loads["data"][:]'
         else
             global load_data = [load_data; loads["data"][:]']
         end
+
         println("Load cell data downloaded")
         @save data_dir_DTs2 * filename_DTs2 * "_loads.jld2" load_data curr_time
         println("Load cell data saved")
-        #if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
-            # Upload to FTP (Box) server
-            println("Uploading load data to FTP server")
-            username = ENV["FTP_USERNAME_box"]
-            password = ENV["FTP_PASSWORD_box"]
-            hostname = ENV["FTP_HOSTNAME_box"]
-            uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_loads.jld2", ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2", username, password, hostname, rcpt)
-            println("Load data uploaded to FTP server")
-        #end
+
+        # Upload to FTP (Box) server
+        println("Uploading load data to FTP server")
+        files = Dict("loads" => [data_dir_DTs2 * filename_DTs2 * "_loads.jld2"; ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2"])
+        uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
+            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"])
+        println("Load data uploaded to FTP server")
     end
 
 
@@ -157,6 +153,7 @@ while cond # while true
         println("Data saved to .jld2 file")
 
     end
+
     if sMat == true
         println("Saving data to MATLAB file")
         # Save data in MATLAB format
@@ -168,19 +165,14 @@ while cond # while true
     end
 
     if uFTP == true
-        #if mod(j, 6) == 0 # Upload to FTP server every 6 iterations
-            # Upload to FTP (Box) server
-            println("Uploading data to FTP server")
-            username = ENV["FTP_USERNAME_box"]
-            password = ENV["FTP_PASSWORD_box"]
-            hostname = ENV["FTP_HOSTNAME_box"]
-
-            uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * ".jld2", ftp_dir_DTs2 * filename_DTs2 * ".jld2", username, password, hostname, rcpt)
-            uploadFileToFTP(data_dir_DTs2 * filename_DTs2 * "_.mat", ftp_dir_DTs2 * filename_DTs2 * ".mat", username, password, hostname, rcpt)
-
-            uploadFileToFTP(data_dir_PRC * filename_PRC * ".jld2", ftp_dir_PRC * filename_PRC * ".jld2", username, password, hostname, rcpt)
-            uploadFileToFTP(data_dir_PRC * filename_PRC * "_.mat", ftp_dir_PRC * filename_PRC * ".mat", username, password, hostname, rcpt)
-        #end
+        # Upload to FTP (Box) server
+        println("Uploading data to FTP server")
+        files = Dict("DTs2_data" => [data_dir_DTs2 * filename_DTs2 * ".jld2"; ftp_dir_DTs2 * filename_DTs2 * ".jld2"],
+            "DTs2_data_mat" => [data_dir_DTs2 * filename_DTs2 * "_.mat"; ftp_dir_DTs2 * filename_DTs2 * "_.mat"],
+            "PRC_data" => [data_dir_PRC * filename_PRC * ".jld2"; ftp_dir_PRC * filename_PRC * ".jld2"],
+            "PRC_data_mat" => [data_dir_PRC * filename_PRC * "_.mat"; ftp_dir_PRC * filename_PRC * "_.mat"])
+        uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
+            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"])
     end
     println("Reading iteration finished: ", Dates.now())
 
@@ -189,6 +181,7 @@ while cond # while true
         sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Reading control every 4h!")
     end
     j += 1
+
     # 50 MB, splitting of files if they are too big
     if (filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000) || (filesize(data_dir_DTs2 * filename_DTs2 * ".jld2") > 50000000)
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
