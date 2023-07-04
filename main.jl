@@ -27,8 +27,8 @@ include("./functions/sendEmail.jl")
 include("./functions/get_loads.jl")
 
 
-uFTP = false  # upload to FTP
-dSFTP = false  # download from SFTP load cells
+uFTP = true  # upload to FTP
+dSFTP = true  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
