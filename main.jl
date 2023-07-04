@@ -79,26 +79,26 @@ while cond # while true
     println("Iteration num.: ", j)
 
     tic = Dates.now()  # equivalent to MATLAB's tic
-    try
-        global ts, j_map, data, timeF
-        data, timeF = get_data(ts, j_map)
-    catch e
-        println("Error in get_data")
-        println(e)
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
-            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"],
-            "Failed to read data from Luna, Error in get_data")
-        exit(1)
-    end
+    #=     try
+            global ts, j_map, data, timeF
+            data, timeF = get_data(ts, j_map)
+        catch e
+            println("Error in get_data")
+            println(e)
+            sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
+                ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"],
+                "Failed to read data from Luna, Error in get_data")
+            exit(1)
+        end
 
-    for i in 1:8
-        old_values = getfield(raw_data, j_map[i])
-        new_values = getfield(data, j_map[i])
-        new_data = isempty(old_values) ? new_values : vcat(old_values, new_values)
-        setfield!(raw_data, j_map[i], new_data)
-    end
+        for i in 1:8
+            old_values = getfield(raw_data, j_map[i])
+            new_values = getfield(data, j_map[i])
+            new_data = isempty(old_values) ? new_values : vcat(old_values, new_values)
+            setfield!(raw_data, j_map[i], new_data)
+        end
 
-    curr_time = vcat(curr_time, timeF)
+        curr_time = vcat(curr_time, timeF) =#
 
     if n < 10
         filename_DTs2 = "DTs2_numfile_00" * string(n)
