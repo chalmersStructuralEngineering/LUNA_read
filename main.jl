@@ -27,8 +27,8 @@ include("./functions/sendEmail.jl")
 include("./functions/get_loads.jl")
 
 
-uFTP = true  # upload to FTP
-dSFTP = true  # download from SFTP load cells
+uFTP = false  # upload to FTP
+dSFTP = false  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
@@ -44,7 +44,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 60  # Number of readings per measurement point to divide between number of active channels
-int = 600  # Time interval between readings in seconds
+int = 10  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
