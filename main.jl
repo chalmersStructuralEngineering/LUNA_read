@@ -159,8 +159,8 @@ while cond # while true
         # Save data in MATLAB format
 
         saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
-
         saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
+
         println("Data saved to MATLAB file")
     end
 
