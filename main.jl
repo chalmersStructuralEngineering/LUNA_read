@@ -44,7 +44,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 64  # Number of readings per measurement point to divide between number of active channels
-int = 600  # Time interval between readings in seconds
+int = 300  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -73,7 +73,7 @@ println(n)
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
-    global raw_data, curr_time, j, n, rcpt
+    global raw_data, curr_time, j, n
 
     println("########################################")
     println("Iteration num.: ", j)
@@ -131,9 +131,11 @@ while cond # while true
         # Upload to FTP (Box) server
         println("Uploading load data to FTP server")
         files = Dict("loads" => [data_dir_DTs2 * filename_DTs2 * "_loads.jld2"; ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2"])
-        uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
-            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"])
-        println("Load data uploaded to FTP server")
+        if uFTP == true
+            uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
+                ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"])
+            println("Load data uploaded to FTP server")
+        end
     end
 
 
@@ -176,9 +178,10 @@ while cond # while true
     end
     println("Reading iteration finished: ", Dates.now())
 
-    # Send control email every 24 iterations (4 hours)
-    if mod(j, 24) == 0
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Reading control every 4h!")
+    # Send control email every 48 iterations (4 hours)
+    if mod(j, 48) == 0
+        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
+            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"], "Reading control every 4h!")
     end
     j += 1
 
