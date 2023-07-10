@@ -44,7 +44,7 @@ DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
 ts = 64  # Number of readings per measurement point to divide between number of active channels
-int = 300  # Time interval between readings in seconds
+int = 600  # Time interval between readings in seconds
 j = 1
 
 curr_time = []
@@ -178,8 +178,8 @@ while cond # while true
     end
     println("Reading iteration finished: ", Dates.now())
 
-    # Send control email every 48 iterations (4 hours)
-    if mod(j, 48) == 0
+    # Send control email every 24 iterations (4 hours)
+    if mod(j, 24) == 0
         sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
             ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"], "Reading control every 4h!")
     end
