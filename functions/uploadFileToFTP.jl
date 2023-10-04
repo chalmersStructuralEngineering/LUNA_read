@@ -22,7 +22,7 @@ function uploadFileToFTP(files, user, pwrd, host, rcpt)
     catch e
         println("Failed to upload the file.")
         println(e)
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to upload file to FTP server!")
+        # sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"], rcpt, "Failed to upload file to FTP server!")
     finally
         # Remember to close the FTP connection
         close(ftp)

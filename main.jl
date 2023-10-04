@@ -34,8 +34,8 @@ sJLD2 = true  # save to .jld2 file
 
 data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
-ftp_dir_DTs2 = "/Davids_test/Series_2/"
-ftp_dir_PRC = "/PostDOFS/Series_2/"#"/Davids_test/Series_2/"
+ftp_dir_DTs2 = "/Davids_test/Series_2b/"
+ftp_dir_PRC = "/PostDOFS/Series_2b/"#"/Davids_test/Series_2/"
 
 raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
