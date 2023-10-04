@@ -24,7 +24,7 @@ include("./functions/get_data.jl")
 include("./functions/uploadFileToFTP.jl")
 include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
-include("./functions/get_loads.jl")
+
 
 
 uFTP = true  # upload to FTP
@@ -32,14 +32,11 @@ dSFTP = true  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
-data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
-data_dir_PRC = "./test_data/PRC/"
-ftp_dir_DTs2 = "/Davids_test/Series_2b/"
-ftp_dir_PRC = "/PostDOFS/Series_2b/"#"/Davids_test/Series_2/"
+data_dir_FTC = "./test_data/FTC/"
+ftp_dir_FTC = "/Fatigue_test/Beam1/"
 
 raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
-PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
-DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
+FTC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
