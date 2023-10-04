@@ -35,15 +35,15 @@ data_dir_FTC = "./test_data/FTC/"
 ftp_dir_FTC = "/Fatigue_test/Beam1/"
 
 raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
-FTC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+raw_time = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
+FTC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 64  # Number of readings per measurement point to divide between number of active channels
-int = 3600  # Time interval between readings in seconds
+ts = 10  # Number of readings per measurement point to divide between number of active channels
+int = 30#3600  # Time interval between readings in seconds
 j = 1
 
-curr_time = []
 
 listing = readdir(data_dir_FTC)
 
@@ -69,15 +69,15 @@ println(n)
 # Starting loop for reading and storing data every (int) seconds
 cond = true
 while cond # while true
-    global raw_data, curr_time, j, n
+    global raw_data, raw_time, j, n
 
     println("########################################")
     println("Iteration num.: ", j)
 
     tic = Dates.now()  # equivalent to MATLAB's tic
     try
-        global ts, j_map, data, timeF
-        data, timeF = get_data(ts, j_map)
+        global ts, j_map, data, time_data
+        data, time_data = get_data(ts, j_map)
     catch e
         println("Error in get_data")
         println(e)
@@ -92,10 +92,12 @@ while cond # while true
         new_values = getfield(data, j_map[i])
         new_data = isempty(old_values) ? new_values : vcat(old_values, new_values)
         setfield!(raw_data, j_map[i], new_data)
+        old_values_t = getfield(raw_time, j_map[i])
+        new_values_t = getfield(time_data, j_map[i])
+        new_data_t = isempty(old_values_t) ? new_values_t : vcat(old_values_t, new_values_t)
+        setfield!(raw_time, j_map[i], new_data_t)
     end
 
-    curr_time =
-        vcat(curr_time, timeF)
     if n < 10
         filename_FTC = "FTC_numfile_00" * string(n)
     elseif n < 100
@@ -106,15 +108,18 @@ while cond # while true
 
     #### Divide the data series, save files and upload to the corresponding folders
     # Divide data series in 2 parts corresponding to the 2 tests
-    for i = 1:4
-        setfield!(FTC_data, j_map[i], getfield(raw_data, j_map[i]))
-    end
+
+    setfield!(FTC_data, j_map[2], getfield(raw_data, j_map[3]))
+    setfield!(FTC_data, j_map[1], getfield(raw_time, j_map[3]))
+    setfield!(FTC_data, j_map[4], getfield(raw_data, j_map[6]))
+    setfield!(FTC_data, j_map[3], getfield(raw_data, j_map[6]))
+
 
     if sJLD2 == true
         println("Saving data to .jld2 file")
         # Save data in Julia format
 
-        @save data_dir_FTC * filename_FTC * ".jld2" FTC_data curr_time
+        @save data_dir_FTC * filename_FTC * ".jld2" FTC_data
         println("Data saved to .jld2 file")
 
     end
@@ -123,7 +128,7 @@ while cond # while true
         println("Saving data to MATLAB file")
         # Save data in MATLAB format
 
-        saveToMAT(FTC_data, curr_time, data_dir_FTC * filename_FTC * "_.mat")
+        saveToMAT(FTC_data, data_dir_FTC * filename_FTC * "_.mat")
 
         println("Data saved to MATLAB file")
     end

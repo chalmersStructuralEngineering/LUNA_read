@@ -1,14 +1,13 @@
 using MAT
 
-function saveToMAT(data, time, folder)
+function saveToMAT(data, folder)
 
     # Convert your struct to a dict of arrays
     dict_data = Dict(
-        "ch1" => data.ch1,
-        "ch2" => data.ch2,
-        "ch3" => data.ch3,
-        "ch4" => data.ch4,
-        "time" => time
+        "time_ch1" => data.ch1,
+        "ch1" => data.ch2,
+        "time_ch2" => data.ch3,
+        "ch2" => data.ch4,
     )
 
     # Write the dict to a .mat file
