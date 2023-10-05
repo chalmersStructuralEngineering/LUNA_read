@@ -40,8 +40,8 @@ FTC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 10  # Number of readings per measurement point to divide between number of active channels
-int = 30#3600  # Time interval between readings in seconds
+ts = 3000  # Number of readings per measurement point to divide between number of active channels
+int = 15 * 60  # Time interval between readings in seconds
 j = 1
 
 
@@ -112,7 +112,7 @@ while cond # while true
     setfield!(FTC_data, j_map[2], getfield(raw_data, j_map[3]))
     setfield!(FTC_data, j_map[1], getfield(raw_time, j_map[3]))
     setfield!(FTC_data, j_map[4], getfield(raw_data, j_map[6]))
-    setfield!(FTC_data, j_map[3], getfield(raw_data, j_map[6]))
+    setfield!(FTC_data, j_map[3], getfield(raw_time, j_map[6]))
 
 
     if sJLD2 == true
