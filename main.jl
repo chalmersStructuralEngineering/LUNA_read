@@ -40,7 +40,7 @@ FTC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 3000  # Number of readings per measurement point to divide between number of active channels
+ts = 4  # Number of readings per measurement point to divide between number of active channels
 int = 15 * 60  # Time interval between readings in seconds
 j = 1
 
@@ -142,18 +142,12 @@ while cond # while true
             ["<fignasi@chalmers.se>", "<mozhdeh.amani@chalmers.se>", "<berrocal@chalmers.se>"])
     end
     println("Reading iteration finished: ", Dates.now())
-
-    # Send control email every 24 iterations (4 hours)
-    if mod(j, 24) == 0
-        sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
-            ["<fignasi@chalmers.se>", "<mozhdeh.amani@chalmers.se>", "<berrocal@chalmers.se>"], "Reading control every 4h!")
-    end
     j += 1
 
     # 50 MB, splitting of files if they are too big
     if (filesize(data_dir_FTC * filename_FTC * ".jld2") > 50000000) || (filesize(data_dir_FTC * filename_FTC * ".jld2") > 50000000)
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
-        curr_time = []
+        raw_time = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         j = 1
         n += 1
     end

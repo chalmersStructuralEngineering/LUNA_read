@@ -56,8 +56,7 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
                 if dec_data.channel == 3
                     data_values = data_values[673:end, 1]  # remove first 672 values as they are outside the measurement range
                 elseif dec_data.channel == 6
-
-                    data_values = data_values[1346:end, 1]  # remove first 672 values as they are outside the measurement range
+                    data_values = data_values[1346:end, 1]  # remove first 1345 values as they are outside the measurement range
                 end
                 new_data = convert(Matrix{Float64}, reshape(data_values, 1, :))
                 new_time = convert(Matrix{Float64}, reshape(dt, 1, :))
