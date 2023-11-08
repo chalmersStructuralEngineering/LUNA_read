@@ -32,14 +32,11 @@ dSFTP = true  # download from SFTP load cells
 sMat = true  # save to .mat file
 sJLD2 = true  # save to .jld2 file
 
-data_dir_DTs2 = "./test_data/Davids_test/Series_2/"
 data_dir_PRC = "./test_data/PRC/"
-ftp_dir_DTs2 = "/Davids_test/Series_2b/"
 ftp_dir_PRC = "/PostDOFS/Series_2b/"#"/Davids_test/Series_2/"
 
 raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
 PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
-DTs2_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
@@ -86,7 +83,7 @@ while cond # while true
         println("Error in get_data")
         println(e)
         sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
-            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"],
+            ["<fignasi@chalmers.se>", "<berrocal@chalmers.se>"],
             "Failed to read data from Luna, Error in get_data")
         exit(1)
     end
@@ -100,57 +97,24 @@ while cond # while true
 
     curr_time =
         vcat(curr_time, timeF)
+
     if n < 10
-        filename_DTs2 = "DTs2_numfile_00" * string(n)
         filename_PRC = "PRC_numfile_00" * string(n)
     elseif n < 100
-        filename_DTs2 = "DTs2_numfile_0" * string(n)
         filename_PRC = "PRC_numfile_0" * string(n)
     else
-        filename_DTs2 = "DTs2_numfile_" * string(n)
         filename_PRC = "PRC_numfile_" * string(n)
     end
-
-
-
-    if dSFTP == true
-        println("Downloading load cell data from SFTP server")
-        # Download data from SFTP server
-        loads = downloadFileFromSFTP("/data/stream.json", ENV["SFTP_USERNAME_lc"], ENV["SFTP_PASSWORD_lc"], ENV["SFTP_HOSTNAME_lc"])
-
-        if j == 1
-            global load_data = loads["data"][:]'
-        else
-            global load_data = [load_data; loads["data"][:]']
-        end
-
-        println("Load cell data downloaded")
-        @save data_dir_DTs2 * filename_DTs2 * "_loads.jld2" load_data curr_time
-        println("Load cell data saved")
-
-        # Upload to FTP (Box) server
-        println("Uploading load data to FTP server")
-        files = Dict("loads" => [data_dir_DTs2 * filename_DTs2 * "_loads.jld2"; ftp_dir_DTs2 * filename_DTs2 * "_loads.jld2"])
-        if uFTP == true
-            uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
-                ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"])
-            println("Load data uploaded to FTP server")
-        end
-    end
-
 
     #### Divide the data series, save files and upload to the corresponding folders
     # Divide data series in 2 parts corresponding to the 2 tests
     for i = 1:4
-        setfield!(DTs2_data, j_map[i], getfield(raw_data, j_map[i+4]))
         setfield!(PRC_data, j_map[i], getfield(raw_data, j_map[i]))
     end
 
     if sJLD2 == true
         println("Saving data to .jld2 file")
         # Save data in Julia format
-
-        @save data_dir_DTs2 * filename_DTs2 * ".jld2" DTs2_data curr_time
         @save data_dir_PRC * filename_PRC * ".jld2" PRC_data curr_time
         println("Data saved to .jld2 file")
 
@@ -159,8 +123,6 @@ while cond # while true
     if sMat == true
         println("Saving data to MATLAB file")
         # Save data in MATLAB format
-
-        saveToMAT(DTs2_data, curr_time, data_dir_DTs2 * filename_DTs2 * "_.mat")
         saveToMAT(PRC_data, curr_time, data_dir_PRC * filename_PRC * "_.mat")
 
         println("Data saved to MATLAB file")
@@ -169,24 +131,22 @@ while cond # while true
     if uFTP == true
         # Upload to FTP (Box) server
         println("Uploading data to FTP server")
-        files = Dict("DTs2_data" => [data_dir_DTs2 * filename_DTs2 * ".jld2"; ftp_dir_DTs2 * filename_DTs2 * ".jld2"],
-            "DTs2_data_mat" => [data_dir_DTs2 * filename_DTs2 * "_.mat"; ftp_dir_DTs2 * filename_DTs2 * "_.mat"],
-            "PRC_data" => [data_dir_PRC * filename_PRC * ".jld2"; ftp_dir_PRC * filename_PRC * ".jld2"],
+        files = Dict("PRC_data" => [data_dir_PRC * filename_PRC * ".jld2"; ftp_dir_PRC * filename_PRC * ".jld2"],
             "PRC_data_mat" => [data_dir_PRC * filename_PRC * "_.mat"; ftp_dir_PRC * filename_PRC * "_.mat"])
         uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
-            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"])
+            ["<fignasi@chalmers.se>", "<berrocal@chalmers.se>"])
     end
     println("Reading iteration finished: ", Dates.now())
 
     # Send control email every 24 iterations (4 hours)
     if mod(j, 24) == 0
         sendEmail(ENV["SMTP_USERNAME_gm"], ENV["SMTP_PASSWORD_gm"], ENV["SMTP_HOSTNAME_gm"],
-            ["<fignasi@chalmers.se>", "<david.dackman@chalmers.se>", "<berrocal@chalmers.se>"], "Reading control every 4h!")
+            ["<fignasi@chalmers.se>", "<berrocal@chalmers.se>"], "Reading control every 4h!")
     end
     j += 1
 
     # 50 MB, splitting of files if they are too big
-    if (filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000) || (filesize(data_dir_DTs2 * filename_DTs2 * ".jld2") > 50000000)
+    if (filesize(data_dir_PRC * filename_PRC * ".jld2") > 50000000)
         raw_data = MyStruct8([Matrix{Float64}(undef, 0, 0) for _ in 1:8]...)
         curr_time = []
         j = 1
