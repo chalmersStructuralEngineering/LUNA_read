@@ -40,7 +40,7 @@ FTC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 4  # Number of readings per measurement point to divide between number of active channels
+ts = 1500  # Number of readings per measurement point to divide between number of active channels
 int = 15 * 60  # Time interval between readings in seconds
 j = 1
 
@@ -62,7 +62,9 @@ else
         end
     end
 end
-
+if n == 0
+    n = 1
+end
 # Now you can access the value of n
 println(n)
 
