@@ -29,8 +29,17 @@ function get_data(ts, j_map)  # ts: Number of calls per measurement to get the m
             fail = 1
             continue
         end
+        q = 0
         while length(readline(t)) == 0
+            q += 1
             sleep(0.1)
+            if q > 100
+                println("No data received from Luna, re-trying")
+                close(t)
+                fail = 1
+                cond = true
+                break
+            end
         end
     end
 
