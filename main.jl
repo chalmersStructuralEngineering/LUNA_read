@@ -40,7 +40,7 @@ PRC_data = MyStruct4([Matrix{Float64}(undef, 0, 0) for _ in 1:4]...)
 
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 
-ts = 64  # Number of readings per measurement point to divide between number of active channels
+ts = 180  # Number of readings per measurement point to divide between number of active channels
 int = 600  # Time interval between readings in seconds
 j = 1
 
