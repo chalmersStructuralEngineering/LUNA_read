@@ -1,6 +1,5 @@
 using Dates
 using JLD2
-
 mutable struct MyStruct8
     ch1::Matrix{Float64}
     ch2::Matrix{Float64}
@@ -11,7 +10,6 @@ mutable struct MyStruct8
     ch7::Matrix{Float64}
     ch8::Matrix{Float64}
 end
-
 mutable struct MyStruct4
     ch1::Matrix{Float64}
     ch2::Matrix{Float64}
@@ -25,7 +23,6 @@ include("./functions/uploadFileToFTP.jl")
 include("./functions/saveToMat.jl")
 include("./functions/sendEmail.jl")
 include("./functions/get_loads.jl")
-
 
 uFTP = true  # upload to FTP
 dSFTP = true  # download from SFTP load cells
