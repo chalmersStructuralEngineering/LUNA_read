@@ -134,7 +134,7 @@ while cond # while true
         files = Dict("PRC_data" => [data_dir_PRC * filename_PRC * ".jld2"; ftp_dir_PRC * filename_PRC * ".jld2"],
             "PRC_data_mat" => [data_dir_PRC * filename_PRC * "_.mat"; ftp_dir_PRC * filename_PRC * "_.mat"])
         uploadFileToFTP(files, ENV["FTP_USERNAME_box"], ENV["FTP_PASSWORD_box"], ENV["FTP_HOSTNAME_box"],
-            ["<fignasi@chalmers.se>", "<berrocal@chalmers.se>"])
+            ["<fignasi@chalmers.se>", "<œberrocal@chalmers.se>"])
     end
     println("Reading iteration finished: ", Dates.now())
 
