@@ -4,6 +4,7 @@ using JLD2
 
 include("get_data.jl")
 include("uploadFileToSCP.jl")  # now contains uploadFileToSCP
+include("uploadToPostgres.jl") # PostgreSQL upload
 
 mutable struct MyStruct
     ch1::Matrix{Float64}
@@ -66,6 +67,9 @@ curr_time = vcat(curr_time, timeF)
 
 filename = make_filename(n)
 @save data_dir * filename raw_data curr_time
+
+# Upload the new acquisition to PostgreSQL
+uploadToPostgres(data, timeF, n, j_map)
 
 username = ENV["SSH_USERNAME"]
 hostname = ENV["SSH_HOSTNAME"]
