@@ -9,7 +9,7 @@ JULIA="/home/odisi/.juliaup/bin/julia"
 LOG="$SCRIPT_DIR/luna.log"
 
 # The cron line – edit SSH_* variables here if needed
-CRON_LINE="*/10 * * * * SSH_USERNAME=fignasi SSH_HOSTNAME=marcus.ace.chalmers.se SSH_KEY_PATH=/home/odisi/.ssh/luna_key cd $SCRIPT_DIR && $JULIA --project=. main.jl >> $LOG 2>&1"
+CRON_LINE="*/10 * * * * cd $SCRIPT_DIR && SSH_USERNAME=fignasi SSH_HOSTNAME=marcus.ace.chalmers.se SSH_KEY_PATH=/home/odisi/.ssh/luna_key $JULIA --project=. main.jl >> $LOG 2>&1"
 
 # Unique marker so we can find/remove exactly this job
 MARKER="LUNA_READ"
