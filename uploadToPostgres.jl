@@ -59,7 +59,7 @@ function uploadToPostgres(data, timeF, file_number, j_map)
         # empty array so it is easy to detect missing data on the DB side.
         channels = map(1:8) do i
             v = vec(getfield(data, j_map[i]))
-            isempty(v) ? nothing : v
+            isempty(v) ? missing : round.(v, digits=2)
         end
 
         execute(conn,

@@ -18,7 +18,7 @@ mutable struct MyStruct
 end
 
 data_dir = "./test_data/"
-remote_dir = "/Natxo/"
+remote_dir = "/home/fignasi/postdofs"
 j_map = Dict(i => Symbol("ch", i) for i in 1:8)
 ts = 60  # Number of readings per measurement point
 
@@ -69,6 +69,8 @@ filename = make_filename(n)
 @save data_dir * filename raw_data curr_time
 
 # Upload the new acquisition to PostgreSQL
+println("ch1 to be uploaded (size: ", size(data.ch1), "):")
+println(data.ch1)
 uploadToPostgres(data, timeF, n, j_map)
 
 username = ENV["SSH_USERNAME"]
