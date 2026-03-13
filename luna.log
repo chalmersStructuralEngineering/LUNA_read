@@ -5907,3 +5907,80 @@ Input data must be a vector
 PostgreSQL upload successful for file 0 at 2026-03-13T02:00:18.312
 File uploaded successfully.
 Reading finished: 2026-03-13T02:00:22.388
+[cron 85ea48d] cron: update luna.log
+ 1 file changed, 72 insertions(+)
+NOTICE:  relation "luna_data" already exists, skipping
+System is going down. Unprivileged users are not permitted to log in anymore. For technical details, see pam_nologin(8).
+
+Connection closed by 129.16.69.50 port 22
+lost connection
+Writing to file number: 0
+Reading iteration started: 2026-03-13T02:10:12.366
+Established connection with Luna, reading data
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+Reading successful
+Closed connection with Luna
+Input data must be a vector
+PostgreSQL upload successful for file 0 at 2026-03-13T02:10:18.385
+Failed to upload the file.
+ProcessFailedException(Base.Process[Process(`scp -i /home/odisi/.ssh/luna_key ./test_data/PRC_numfile_000.jld2 fignasi@marcus.ace.chalmers.se:/home/fignasi/postdofsPRC_numfile_000.jld2`, ProcessExited(1))])
+Reading finished: 2026-03-13T02:10:22.396
