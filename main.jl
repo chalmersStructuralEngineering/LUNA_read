@@ -60,6 +60,11 @@ data, timeF = get_data(ts, j_map)
 for i in 1:8
     old_values = getfield(raw_data, j_map[i])
     new_values = getfield(data, j_map[i])
+    if !isempty(old_values) && !isempty(new_values) && size(old_values, 2) != size(new_values, 2)
+        # Sensor length changed — discard old shorter data, keep only new
+        old_values = Matrix{Float64}(undef, 0, 0)
+        global curr_time = []
+    end
     new_data = isempty(old_values) ? new_values : vcat(old_values, new_values)
     setfield!(raw_data, j_map[i], new_data)
 end

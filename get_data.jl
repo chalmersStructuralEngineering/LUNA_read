@@ -80,12 +80,13 @@ function filter_extreme_values(data_in)
     if isempty(data_in)
         return data_in
     end
-    # Here we use Python's scipy library for winsorization as a rough approximation for MATLAB's filloutliers function
-    result = filloutliers(data_in, "move_mean", 11)
-    # filloutliers can return nothing if it cannot process the data
-    if isnothing(result)
-        return mean(data_in, dims=1)
+    nrows, ncols = size(data_in)
+    result = similar(data_in)
+    for i in 1:nrows
+        row = vec(data_in[i, :])
+        filtered = filloutliers(row, "moving mean", 11)
+        result[i, :] = isnothing(filtered) ? row : filtered
     end
-    data_out = mean(result, dims=1)  # Similar to 'mean' function in MATLAB
+    data_out = mean(result, dims=1)
     return data_out
 end
