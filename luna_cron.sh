@@ -5,7 +5,7 @@
 #   ./luna_cron.sh status  – show whether the job is active
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JULIA="/home/odisi/.juliaup/bin/julia"
+JULIA="$(command -v julia 2>/dev/null || echo julia)"
 LOG="$SCRIPT_DIR/luna.log"
 
 # The cron line – edit SSH_* variables here if needed
